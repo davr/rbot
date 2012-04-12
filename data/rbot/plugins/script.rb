@@ -69,7 +69,7 @@ class ScriptPlugin < Plugin
 
       Thread.start {
         # TODO allow different safe levels for different botusers
-        $SAFE = 3
+        $SAFE = 1
 
         begin
           eval( code )
