@@ -20,6 +20,24 @@ module ::GeoIP
     hostname =~ Resolv::IPv4::Regex && (hostname.split(".").map { |e| e.to_i }.max <= 255)
   end
 
+	def self.geobytes(ip)
+		url = "http://www.geobytes.com/IpLocator.htm?GetLocation&template=php3.txt&IpAddress="
+    regexes  = {
+      :country => %r{<meta name="country" content="(.*?)"}m,
+      :region => %r{<meta name="region" content="(.*?)"}m,
+      :city => %r{<meta name="city" content="(.*?)"}m,
+      :lat => %r{<meta name="latitude" content="(.*?)"}m,
+      :lon => %r{<meta name="longitude" content="(.*?)"}m,
+    }
+    res = {}
+    raw = Irc::Utils.bot.httputil.get_response(url+ip)
+    raw = raw.decompress_body(raw.raw_body)
+
+    regexes.each { |key, regex| res[key] = Iconv.conv('utf-8', 'ISO-8859-1', raw.scan(regex).to_s) }
+
+    return res
+  end
+
   def self.geoiptool(ip)
     url = "http://www.geoiptool.com/en/?IP="
     regexes  = {
@@ -74,6 +92,7 @@ module ::GeoIP
     "ipinfodb" => Proc.new { |ip| ipinfodb(ip) },
     "kapsi" => Proc.new { |ip| kapsi(ip) },
     "geoiptool" => Proc.new { |ip| geoiptool(ip) },
+    "geobytes" => Proc.new { |ip| geoiptool(ip) },
   }
 
   def self.resolve(hostname, api)
@@ -112,8 +131,8 @@ end
 
 class GeoIpPlugin < Plugin
   Config.register Config::ArrayValue.new('geoip.sources',
-      :default => [ "ipinfodb", "kapsi", "geoiptool" ],
-      :desc => "Which API to use for lookups. Supported values: ipinfodb, kapsi, geoiptool")
+      :default => [ "ipinfodb", "kapsi", "geoiptool", "geobytes" ],
+      :desc => "Which API to use for lookups. Supported values: ipinfodb, kapsi, geoiptool, geobytes")
   Config.register Config::StringValue.new('geoip.ipinfodb_key',
       :default => "",
       :desc => "API key for the IPinfoDB geolocation service")
