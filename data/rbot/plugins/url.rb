@@ -101,7 +101,7 @@ class UrlPlugin < Plugin
 
       if info[:content]
         logopts[:extra] = info[:content]
-        extra << "#{Bold}text#{Bold}: #{info[:content]}" if @bot.config['url.first_par']
+        extra << "#{Bold}text#{Bold}: #{info[:content][0,150]}" if @bot.config['url.first_par']
       else
         logopts[:extra] = String.new
         logopts[:extra] << "Content Type: #{resp['content-type']}"
