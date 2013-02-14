@@ -14,8 +14,10 @@ user = nil
 pw = nil
 dst = nil
 uri = 'druby://localhost:7268'
+cmd = 'say'
 
 opts = OptionParser.new
+opts.on('-c', '--command <cmd>', "command (default='say')") { |v| cmd = v }
 opts.on('-u', '--user <user>', "remote user (mandatory)") { |v| user = v }
 opts.on('-p', '--password <pw>', "remote user password (mandatory)") { |v| pw = v }
 opts.on('-d', '--destination <user or #channel>') { |v| dst = v }
@@ -59,7 +61,7 @@ EOF
 }
 opts.parse!
 
-if !pw || !user || !dst
+if !pw || !user || (!dst && cmd == 'say')
     puts opts.to_s
     exit 0
 end
@@ -67,10 +69,15 @@ end
 rbot = DRbObject.new_with_uri(uri)
 id = rbot.delegate(nil, "remote login #{user} #{pw}")[:return]
 puts "id is #{id.inspect}"
-loop {
-    s = gets or break
-    s.chomp!
-    rv = rbot.delegate(id, "dispatch say #{dst} #{s}") or break
-    puts "rv is #{rv.inspect}"
-}
+if cmd == 'say'
+    loop {
+	s = gets or break
+	s.chomp!
+	rv = rbot.delegate(id, "dispatch #{cmd} #{dst} #{s}") or break
+	puts "rv is #{rv.inspect}"
+    }
+else
+    rv = rbot.delegate(id, "dispatch #{cmd}") or break
+    puts "rv #{cmd} is #{rv.inspect}"
+end
 
