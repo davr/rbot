@@ -193,7 +193,7 @@ class UrlPlugin < Plugin
             debug "Not retrying #{unescaped}"
           end
         end
-        reply = "Error #{e.message}"
+#        reply = "Error #{e.message}"
       end
 
       if display_info > urls_displayed
