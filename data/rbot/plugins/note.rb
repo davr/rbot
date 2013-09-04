@@ -23,9 +23,13 @@ class NotePlugin < Plugin
     n = 0
     @registry.keys.each do |key|
       unless key == key.downcase
-        @registry[key.downcase] = @registry[key] + (@registry[key.downcase] || [])
-        @registry.delete key
-        n += 1
+	begin
+          @registry[key.downcase] = @registry[key] + (@registry[key.downcase] || [])
+          @registry.delete key
+          n += 1
+	rescue
+	  debug "Pooped that up"
+	end
       end
     end
     debug "#{n} entries converted and merged."
