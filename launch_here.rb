@@ -10,7 +10,7 @@ $:.unshift File.join(SCM_DIR, 'lib')
 
 $version = '0.9.15'
 
-pwd = Dir.pwd
+pwd = SCM_DIR
 begin
   Dir.chdir SCM_DIR
 
